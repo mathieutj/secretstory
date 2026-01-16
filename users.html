@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecretStory - Envoie-moi un message anonyme !</title>
+<meta name="title" content="SecretStory - Envoie-moi un message anonyme !">
+<meta name="description" content="Pose-moi des questions ou dis-moi tes secrets, c'est 100% anonyme.">
+
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://tonsite.com/">
+<meta property="og:title" content="SecretStory - Messages Anonymes">
+<meta property="og:description" content="Pose-moi des questions ou dis-moi tes secrets, c'est 100% anonyme.">
+<meta property="og:image" content="https://tonsite.com/preview-image.png">
+
+<meta property="twitter:card" content="summary_large_image">
+<meta property="twitter:title" content="SecretStory">
+<meta property="twitter:description" content="Pose-moi des questions anonymes !">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .glass {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .bg-gradient {
+            background: radial-gradient(circle at bottom left, #1e1b4b, #4c1d95, #000000);
+        }
+        .animate-pop { animation: pop 0.3s ease-out; }
+        @keyframes pop {
+            0% { transform: scale(0.95); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        /* Pour tous les navigateurs */
+#secretInput::placeholder {
+    color: rgba(255, 255, 255, 0.8); /* Un blanc éclatant mais pas agressif */
+    opacity: 1; /* Force l'opacité à 100% */
+}
+
+/* Version spécifique pour le focus */
+#secretInput:focus::placeholder {
+    color: rgba(255, 255, 255, 0.4); /* S'estompe légèrement quand on tape */
+}
+    </style>
+</head>
+<body class="bg-gradient text-white min-h-screen flex flex-col items-center px-6">
+
+    <header class="py-8">
+        <h1 class="text-2xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-600">
+            SecretStory
+        </h1>
+    </header>
+
+    <main class="w-full max-w-md flex-1 flex flex-col justify-center">
+        
+        <div class="text-center mb-6 animate-pop">
+            <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-tr from-purple-600 via-purple-500 to-pink-500 text-3xl font-bold mb-4 overflow-hidden">
+                <span class="text-white">M</span>
+            </div>
+            <h2 class="text-xl font-bold">
+                Envoyer un message à <span id="receiverName" class="text-purple-400">...</span>
+            </h2>
+            <p class="text-gray-400 text-sm mt-2 flex items-center justify-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+                <span>C'est 100% anonyme, promis.</span>
+            </p>
+        </div>
+
+        <div class="glass rounded-3xl p-6 shadow-2xl relative">
+            <div class="relative">
+                <textarea id="secretInput" rows="5" 
+                    placeholder="Écris ton secret ici..."
+                    class="w-full bg-transparent border-none text-lg focus:outline-none focus:ring-0 placeholder:text-gray-600 resize-none"
+                    maxlength="200"></textarea>
+                
+                    <button onclick="changePrompt()" class="absolute bottom-3 right-3 p-2.5 bg-white/10 hover:bg-white/20 rounded-xl transition-all active:scale-90 border border-white/5 backdrop-blur-md group" title="Besoin d'inspiration ?">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-400 group-hover:text-yellow-300 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                        </svg>
+                    </button>
+            </div>
+        </div>
+
+        <button onclick="sendSecret()" class="mt-6 w-full bg-white text-black font-extrabold py-5 rounded-2xl shadow-xl hover:bg-gray-100 transition-all active:scale-95 flex items-center justify-center gap-3">
+            <span>Envoyer anonymement</span>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 rotate-45" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+            </svg>
+        </button>
+
+        <div id="successView" class="hidden animate-pop text-center p-8 glass rounded-3xl mt-6 border-2 border-green-500/30">
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-500/20 text-green-400 text-3xl mb-4">
+                ✓
+            </div>
+            <h3 class="text-xl font-bold text-white mb-2">Secret envoyé !</h3>
+            <p class="text-gray-400 text-sm mb-6">Momo recevra ton message anonymement d'ici quelques instants. 🤐</p>
+            
+            <button onclick="window.location.reload()" class="text-purple-400 font-bold text-sm hover:underline">
+                Envoyer un autre secret
+            </button>
+        </div>
+
+        <div class="mt-12 p-4 rounded-2xl border border-dashed border-white/20 text-center">
+            <p class="text-sm text-gray-400">Toi aussi tu veux des secrets ?</p>
+            <a href="index.html" class="text-purple-400 font-bold hover:underline">Crée ton lien SecretStory ici</a>
+        </div>
+
+    </main>
+
+    <footer class="py-8 text-[10px] text-gray-600 uppercase tracking-widest">
+        SecretStory &copy; 2026 - Anonymat Garanti
+    </footer>
+
+    <script>
+        function changePrompt() {
+    const questions = [
+        "Un secret que tu n'as jamais dit ?",
+        "Ton plus gros dossier sur moi ?",
+        "Ce que tu penses vraiment de moi...",
+        "Une confession anonyme ?",
+        "Une question que tu n'oses pas poser ?"
+    ];
+    
+    const input = document.getElementById('secretInput');
+    const random = questions[Math.floor(Math.random() * questions.length)];
+    
+    // Petit effet de "flash" pour montrer que ça a changé
+    input.style.transition = "all 0.2s";
+    input.style.opacity = "0.5";
+    
+    setTimeout(() => {
+        input.placeholder = random;
+        input.style.opacity = "1";
+    }, 100);
+}
+    </script>
+
+<script>
+    // Initialisation de la connexion
+    const supabaseUrl = 'https://esobynkttegitxvdeuyv.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVzb2J5bmt0dGVnaXR4dmRldXl2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjczNjE2MTcsImV4cCI6MjA4MjkzNzYxN30.jrvrusfMyAiYb5yUw7eBH3vhIRpx1663CoxpczZtYoI';
+    const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+    // Cette fonction manquait ! Elle permet de lire le ?u= dans l'adresse
+function getReceiverFromURL() {
+    const urlParams = new URLSearchParams(window.location.search);
+    let receiver = urlParams.get('u');
+
+    if (!receiver) {
+        const path = window.location.pathname;
+        receiver = path.split('/').pop().replace('.html', '');
+    }
+    return receiver;
+}
+
+    async function displayReceiverName() {
+    // 1. On cherche d'abord dans le paramètre ?u=
+    const urlParams = new URLSearchParams(window.location.search);
+    let receiver = urlParams.get('u');
+
+    // 2. Si pas trouvé, on regarde dans le chemin (pour la version en ligne)
+    if (!receiver) {
+        const path = window.location.pathname;
+        receiver = path.split('/').pop().replace('.html', '');
+    }
+
+    // 3. Test de sécurité
+    if (receiver && receiver !== "users" && receiver !== "users.html") {
+        const el = document.getElementById('receiverName');
+        if (el) el.innerText = "@" + receiver;
+        
+        const avatar = document.querySelector('.w-20.h-20');
+        if (avatar) avatar.innerText = receiver.charAt(0).toUpperCase();
+    } else {
+        console.error("Aucun pseudo détecté.");
+        // En local, on peut mettre un pseudo par défaut pour tester
+        // document.getElementById('receiverName').innerText = "@test_local";
+    }
+}
+
+// Appelle cette fonction au chargement
+window.onload = displayReceiverName;
+  
+    // --- LOGIQUE PAGE ACCUEIL (Créer son lien) ---
+    async function createLink() {
+      const username = document.querySelector('input').value.trim().toLowerCase();
+      if (!username) return alert("Choisis un pseudo !");
+  
+      // On vérifie si le pseudo existe ou on l'enregistre
+      const { error } = await _supabase.from('profiles').insert([{ username }]);
+      
+      if (!error || error.code === '23505') { // 23505 = déjà existant, c'est ok
+          localStorage.setItem('my_secret_username', username);
+          window.location.href = 'success.html'; // Redirection
+      } else {
+          alert("Erreur : " + error.message);
+      }
+    }
+  
+    // --- LOGIQUE PAGE RÉCEPTION (Envoyer un secret) ---
+    async function sendSecret() {
+    const receiver = getReceiverFromURL();
+    const text = document.getElementById('secretInput').value;
+    const btn = document.querySelector('button[onclick="sendSecret()"]');
+    const formView = document.getElementById('secretInput').parentElement.parentElement; // Le conteneur du formulaire
+    const successView = document.getElementById('successView');
+
+    if (!text || text.trim() === "") {
+        return alert("Oups ! Écris quelque chose.");
+    }
+
+    // Effet de chargement sur le bouton
+    btn.disabled = true;
+    btn.innerHTML = `<span>Envoi en cours...</span>`;
+
+    const { error } = await _supabase.from('secrets').insert([
+        { receiver_username: receiver, content: text }
+    ]);
+
+    if (!error) {
+        // --- LA MAGIE OPÈRE ICI ---
+        // 1. On cache le formulaire et le titre
+        document.querySelector('main > div:first-child').classList.add('hidden'); // Cache l'avatar et le pseudo
+        formView.classList.add('hidden');
+        btn.classList.add('hidden');
+
+        // 2. On affiche la vue de succès
+        successView.classList.remove('hidden');
+    } else {
+        alert("Erreur de connexion. Réessaye !");
+        btn.disabled = false;
+        btn.innerText = "Envoyer anonymement 🤫";
+    }
+}
+  
+    // --- LOGIQUE DASHBOARD (Afficher ses secrets) ---
+    async function loadMySecrets() {
+      const myUsername = localStorage.getItem('my_secret_username');
+      if (!myUsername) return window.location.href = 'index.html';
+  
+      const { data, error } = await _supabase
+          .from('secrets')
+          .select('*')
+          .eq('receiver_username', myUsername)
+          .order('created_at', { ascending: false });
+  
+      if (data) {
+          // Ici, on injecterait les données dans le HTML du Dashboard
+          console.log("Mes secrets reçus :", data);
+      }
+    }
+
+    // LANCEMENT AU CHARGEMENT DE LA PAGE
+    // On demande au navigateur d'exécuter displayReceiverName dès que la page est prête
+    window.addEventListener('DOMContentLoaded', displayReceiverName);
+  </script>
+
+</body>
+</html>
