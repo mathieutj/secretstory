@@ -22,4 +22,4 @@
 
 - **Frontend :** JavaScript (ES6+), React.js, CSS3 (Design immersif).
 - **Backend-as-a-Service :** **Supabase** (PostgreSQL) pour la base de données et le Realtime.
-- **Hébergement :** Déployé sur Vercel.
+- **Hébergement :** Déployé sur github.
